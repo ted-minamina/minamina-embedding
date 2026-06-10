@@ -1,0 +1,33 @@
+# MinaMina embedding — TEI (Text Embeddings Inference) with MiniLM-L12-v2.
+#
+# Usage:
+#   docker compose up -d
+#   curl http://127.0.0.1:8400/health
+#   curl -X POST http://127.0.0.1:8400/embed -H "Content-Type: application/json" -d "{\"inputs\":\"你好\"}"
+#
+# First start downloads model weights into tei_data volume (Hugging Face Hub).
+# Subsequent restarts use the cached model offline.
+
+services:
+  tei:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.9
+    container_name: minamina-chat-dev-tei
+    command:
+      - --model-id
+      - ${TEI_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      - --pooling
+      - mean
+    ports:
+      - "${TEI_PORT:-8400}:80"
+    volumes:
+      - tei_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://127.0.0.1:80/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 180s
+    restart: unless-stopped
+
+volumes:
+  tei_data:
