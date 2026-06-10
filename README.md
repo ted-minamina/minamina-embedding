@@ -6,7 +6,7 @@ Local embedding service for MinaMina chat — [Text Embeddings Inference (TEI)](
 
 ```bash
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
 curl http://127.0.0.1:8400/health
 curl -X POST http://127.0.0.1:8400/embed \
   -H "Content-Type: application/json" \
@@ -14,6 +14,13 @@ curl -X POST http://127.0.0.1:8400/embed \
 ```
 
 Container name: `minamina-chat-dev-tei` (port `8400` by default).
+
+### Without compose
+
+```bash
+docker build -t minamina-embedding .
+docker run -d --name minamina-chat-dev-tei -p 8400:80 -v tei_data:/data minamina-embedding
+```
 
 ## Model
 
